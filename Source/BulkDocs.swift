@@ -17,6 +17,25 @@
 
 import Foundation
 
+/**
+ An operation to create and update documents in bulk.
+ 
+ Example usage:
+ 
+ ```
+ let documents = [["hello":"world"], ["foo":"bar", "_id": "foobar", "_rev": "1-revision"]
+ let bulkDocs = PutBulkDocsOperation(databaseName: "exampleDB", documents: documents) { response, httpInfo, error in 
+    guard let response = response, httpInfo = httpInfo, error == nil 
+    else {
+        //handle the error
+        return
+    }
+ 
+    //handle success.
+ }
+ 
+ ```
+ */
 public class PutBulkDocsOperation : CouchDatabaseOperation, JSONOperation {
     
     public typealias Json = [[String: AnyObject]]
@@ -25,12 +44,33 @@ public class PutBulkDocsOperation : CouchDatabaseOperation, JSONOperation {
     
     public let completionHandler: ((response: [[String:AnyObject]]?, httpInfo:HTTPInfo?, error:Error?) -> Void)?
     
+    /**
+     The documents that make up this request.
+    */
     public let documents: [[String:AnyObject]]
     
+    /**
+     If false, CouchDB will insert the documents exactly as they are sent. This option is normally 
+     used for replication with CouchDB.
+    */
     public let newEdits: Bool?
     
+    /**
+    If true the commit mode for the request will be "All or Nothing" meaning that if one document
+    fails to be created or updated, no documents will be commited to the database.
+    */
     public let allOrNothing: Bool?
     
+    /**
+     Creates the operation
+     
+     - parameter databaseName: The name of the database where the documents should be created or updated.
+     - parameter documents: The documents that should be saved to the server.
+     - parameter newEdits: Should the server treate the request as new edits or save as is.
+     - parameter allOrNothing: The commit mode for the database, if set to true, if one document fails
+     to be inserted into the database, all other documents in the request will also not be inserted.
+     - parameter comptionHandler: Optional handler to call when the operation completes.
+     */
     public init(databaseName: String,
                 documents:[[String:AnyObject]],
                 newEdits: Bool? = nil,
