@@ -81,13 +81,7 @@ class ViewPagingTests : XCTestCase {
                     XCTAssertNotEqual(firstPage as NSDictionary, page)
                 }
                 
-                let rows = page["rows"] as! [[String :AnyObject]]
-                let ids = rows.reduce([]) { (partialResult, row) -> [String] in
-                    var partialResult = partialResult
-                    partialResult.append(row["id"] as! String)
-                    return partialResult
-                }
-                XCTAssertEqual(rows.count, ids.count)
+                let ids = self.extractIDs(from: page)
                 XCTAssertEqual(5, ids.count)
                 
                 var startNumber: Int
@@ -149,7 +143,7 @@ class ViewPagingTests : XCTestCase {
                     isSecond = false
                     return .previous
                 } else {
-                    XCTAssertEqual(firstPage as NSDictionary, page)
+                    XCTAssertEqual((firstPage["rows"] as! NSArray), (page["rows"] as! NSArray))
                 }
                 
                 let ids = self.extractIDs(from: page)
@@ -162,6 +156,116 @@ class ViewPagingTests : XCTestCase {
                     XCTAssertEqual(startNumber, Int(last))
                     startNumber += 1
                     
+                }
+            }
+            
+            if !isSecond && !isFirst {
+                expectation.fulfill()
+            }
+            
+            return .stop
+            
+        }
+        
+        // Start paging.
+        viewPage.makeRequest()
+        
+        self.waitForExpectations(timeout: 20.0)
+        
+        
+    }
+    
+    func testPageForwardDescending(){
+        
+        let expectation = self.expectation(description: "Paging views")
+        
+        var firstPage: [String:AnyObject] = [:]
+        var isFirst: Bool = true
+        
+        let viewPage = ViewPage(name: "paging", designDocumentID: "paging", databaseName: dbName, client: client!, pageSize: 5, descending: true){ (page: [String : AnyObject]?, token: PageToken?, error: Error?) -> ViewPage.Paging in
+            XCTAssertNotNil(page)
+            XCTAssertNil(error)
+            if let page = page {
+                if isFirst {
+                    firstPage = page
+                } else {
+                    XCTAssertNotEqual(firstPage as NSDictionary, page)
+                }
+                
+                let ids = self.extractIDs(from: page)
+                XCTAssertEqual(5, ids.count)
+                
+                var startNumber: Int
+                if isFirst {
+                    startNumber = 9
+                } else {
+                    startNumber = 4
+                }
+                
+                for id in ids {
+                    let last = id.components(separatedBy: "-").last!
+                    XCTAssertEqual(startNumber, Int(last))
+                    startNumber -= 1
+                    
+                }
+            }
+            
+            if !isFirst {
+                expectation.fulfill()
+            }
+            
+            if isFirst {
+                isFirst = false
+                return .next
+            } else {
+                return .stop
+            }
+            
+        }
+        
+        // Start paging.
+        viewPage.makeRequest()
+        
+        self.waitForExpectations(timeout: 20.0)
+        
+        
+    }
+    
+    func testPageBackwardDescending(){
+        
+        let expectation = self.expectation(description: "Paging views")
+        
+        var firstPage: [String:AnyObject] = [:]
+        var isFirst: Bool = true
+        var isSecond: Bool = false
+        
+        let viewPage = ViewPage(name: "paging", designDocumentID: "paging", databaseName: dbName, client: client!, pageSize: 5, descending: true){ (page: [String : AnyObject]?, token: PageToken?, error: Error?) -> ViewPage.Paging in
+            XCTAssertNotNil(page)
+            XCTAssertNil(error)
+            
+            if let page = page {
+                if isFirst {
+                    firstPage = page
+                    isFirst = false
+                    isSecond = true
+                    return .next
+                } else if isSecond {
+                    XCTAssertNotEqual(firstPage as NSDictionary, page)
+                    isSecond = false
+                    return .previous
+                } else {
+                    XCTAssertEqual((firstPage["rows"] as! NSArray), (page["rows"] as! NSArray))
+                }
+                
+                let ids = self.extractIDs(from: page)
+                XCTAssertEqual(5, ids.count)
+                
+                var startNumber = 9
+                
+                for id in ids {
+                    let last = id.components(separatedBy: "-").last!
+                    XCTAssertEqual(startNumber, Int(last))
+                    startNumber -= 1
                 }
             }
             

@@ -152,11 +152,11 @@ public class ViewPage {
                 inclusiveEnd = self.inclusiveEnd
                 break
             case .previous:
-                startKey = self.state.lastEndKey
-                startKeyDocumentID = self.state.lastEndKeyDocID
-                endKey = nil
-                endKeyDocumentID = nil
-                descending = self.descending == nil ? true : !(self.descending!)
+                startKey = self.state.lastStartKey
+                startKeyDocumentID = self.state.lastStartKeyDocID
+                endKey = self.startKey
+                endKeyDocumentID = self.startKeyDocumentID
+                descending = self.descending == nil ? true : nil
                 inclusiveEnd = true
                 break
             default:
@@ -185,17 +185,23 @@ public class ViewPage {
                     
                     let filteredRows: [[String: AnyObject]]
                     
-                    // we should only filter last if we are going forward, if backwards we need to filter the first.
-                    if rows.count > Int(self.pageSize) {
-                        
-                        let last = rows.last!
+                    if let last = rows.last {
                         self.state.lastEndKey = last["key"]
                         self.state.lastEndKeyDocID = last["id"] as? String
-                        
-                        
-                        filteredRows = Array(rows.dropLast())
-                        
-                        
+                    }
+                    
+                    if let first = rows.first {
+                        self.state.lastStartKey = first["key"]
+                        self.state.lastStartKeyDocID = first["id"] as? String
+                    }
+                    
+                    // we should only filter last if we are going forward, if backwards we need to filter the first.
+                    if rows.count > Int(self.pageSize) {
+                        if page == .next || page == nil {
+                            filteredRows = Array(rows.dropLast())
+                        } else {
+                            filteredRows = Array(rows.dropFirst()).reversed()
+                        }
                     } else {
                         filteredRows = rows
                     }
