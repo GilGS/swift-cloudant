@@ -4,7 +4,7 @@
 //
 //  Created by Rhys Short on 27/07/2016.
 //
-//  Copyright (c) 2016 IBM Corp.
+//  Copyright (C) 2016 IBM Corp.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 //  except in compliance with the License. You may obtain a copy of the License at
@@ -23,7 +23,7 @@ import Foundation
  Example usage:
  
  ```
- let documents = [["hello":"world"], ["foo":"bar", "_id": "foobar", "_rev": "1-revision"]
+ let documents = [["hello":"world"], ["foo":"bar", "_id": "foobar", "_rev": "1-revision"]]
  let bulkDocs = PutBulkDocsOperation(databaseName: "exampleDB", documents: documents) { response, httpInfo, error in 
     guard let response = response, httpInfo = httpInfo, error == nil 
     else {
@@ -50,7 +50,7 @@ public class PutBulkDocsOperation : CouchDatabaseOperation, JSONOperation {
     public let documents: [[String:AnyObject]]
     
     /**
-     If false, CouchDB will insert the documents exactly as they are sent. This option is normally 
+     If false, CouchDB will not assign documents new revision IDs. This option is normally
      used for replication with CouchDB.
     */
     public let newEdits: Bool?
@@ -66,10 +66,10 @@ public class PutBulkDocsOperation : CouchDatabaseOperation, JSONOperation {
      
      - parameter databaseName: The name of the database where the documents should be created or updated.
      - parameter documents: The documents that should be saved to the server.
-     - parameter newEdits: Should the server treate the request as new edits or save as is.
+     - parameter newEdits: Should the server treat the request as new edits or save as is.
      - parameter allOrNothing: The commit mode for the database, if set to true, if one document fails
      to be inserted into the database, all other documents in the request will also not be inserted.
-     - parameter comptionHandler: Optional handler to call when the operation completes.
+     - parameter completionHandler: Optional handler to call when the operation completes.
      */
     public init(databaseName: String,
                 documents:[[String:AnyObject]],

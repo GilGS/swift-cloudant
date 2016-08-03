@@ -4,7 +4,7 @@
 //
 //  Created by Rhys Short on 27/07/2016.
 //
-//  Copyright (c) 2016 IBM Corp.
+//  Copyright (C) 2016 IBM Corp.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
 //  except in compliance with the License. You may obtain a copy of the License at
@@ -23,6 +23,7 @@ class BulkDocsTests : XCTestCase {
     
     var dbName: String? = nil
     var client: CouchDBClient? = nil
+    let docs:[[String:AnyObject]] = [["hello":"world"], ["foo": "bar"]]
     
     override func setUp() {
         super.setUp()
@@ -38,25 +39,25 @@ class BulkDocsTests : XCTestCase {
     
     func testValidationOnlyDocs() {
     
-        let docs:[[String:AnyObject]] = [["hello":"world"], ["foo": "bar"]]
+        
         let bulk = PutBulkDocsOperation(databaseName: dbName!, documents: docs)
         XCTAssert(bulk.validate())
     }
     
     func testValidationNewEdits() {
-        let docs:[[String:AnyObject]] = [["hello":"world"], ["foo": "bar"]]
+        
         let bulk = PutBulkDocsOperation(databaseName: dbName!, documents: docs, newEdits: false)
         XCTAssert(bulk.validate())
     }
     
     func testValidationAllOrNothing() {
-        let docs:[[String:AnyObject]] = [["hello":"world"], ["foo": "bar"]]
+        
         let bulk = PutBulkDocsOperation(databaseName: dbName!, documents: docs, allOrNothing: true)
         XCTAssert(bulk.validate())
     }
     
     func testGeneratedPayloadAllOptions() throws {
-        let docs:[[String:AnyObject]] = [["hello":"world"], ["foo": "bar"]]
+        
         let bulk = PutBulkDocsOperation(databaseName: dbName!, documents: docs, newEdits: false, allOrNothing: true)
         XCTAssert(bulk.validate())
         
@@ -75,7 +76,7 @@ class BulkDocsTests : XCTestCase {
     }
    
     func testGeneratedPayloadNewEdits() throws {
-        let docs:[[String:AnyObject]] = [["hello":"world"], ["foo": "bar"]]
+        
         let bulk = PutBulkDocsOperation(databaseName: dbName!, documents: docs, newEdits: false)
         XCTAssert(bulk.validate())
         
@@ -94,7 +95,7 @@ class BulkDocsTests : XCTestCase {
     }
     
     func testGeneratedPayloadAllOrNothing() throws {
-        let docs:[[String:AnyObject]] = [["hello":"world"], ["foo": "bar"]]
+        
         let bulk = PutBulkDocsOperation(databaseName: dbName!, documents: docs, allOrNothing: true)
         XCTAssert(bulk.validate())
         
@@ -114,7 +115,7 @@ class BulkDocsTests : XCTestCase {
     
     func testCompleteRequest() throws {
         let expectation = self.expectation(description: "bulk insert")
-        let docs:[[String:AnyObject]] = [["hello":"world"], ["foo": "bar"]]
+        
         let bulk = PutBulkDocsOperation(databaseName: dbName!, documents: docs) { (response, httpInfo, error) in
             XCTAssertNil(error)
             XCTAssertNotNil(response)
